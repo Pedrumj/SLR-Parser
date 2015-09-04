@@ -1,6 +1,0 @@
-[submodule "Additional Source Files/parsetreestruct"]
-	path = Additional Source Files/parsetreestruct
-	url = https://github.com/pedrumj/parsetreestruct
-[submodule "Additional Source Files/Parse-Tree-2"]
-	path = Additional Source Files/Parse-Tree-2
-	url = https://github.com/pedrumj/Parse-Tree-2
