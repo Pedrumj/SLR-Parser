@@ -32,7 +32,7 @@
 //[(,    8]
 //[),    9]
 //[Eps, 10]
-//[$,   11]
+//[$,   11 ]
 //
 //For more information about how to use the project please see the documentation
 //*/
@@ -94,8 +94,7 @@ int main(){
 
 	
 
-	struct ParseTable *_ptrParseTable = (struct ParseTable *)Create_Object(PARSETABLE);
-	_ptrParseTable = (struct ParseTable *)_ptrParseTable->init(_ptrParseTable, matGrammar, Rows,  7, 4, 5);
+
 	struct SLRParser *_ptrParser = (struct SLRParser *)Create_Object(SLRPARSER);
 	struct ParseTree *_ptrParseTree;
 	_ptrParser = _ptrParser->init(_ptrParser, matGrammar, Rows, 7, 4, 5);
