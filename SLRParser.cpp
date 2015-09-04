@@ -1,11 +1,105 @@
-// SLRParser.cpp : Defines the entry point for the console application.
-//
+#include <Windows.h>
+#include "Create_object.h"
+#include "Class_Generic.h"
+#include <stdio.h>
+#include "ParseTable.h"
+#include "SLRParser.h"
+#include "Stack.h"
+#include "ParseTree.h"
+struct internals{
+	struct ParseTable *ParseTable;
+};
 
-#include "stdafx.h"
 
+int Par_Red(struct ParseTree *__ParseTree, struct ParseTreeNode *__ptrNode,  struct SLRParser *__ptrParser, struct Stack *__ptrStack, int __state, int __reduceNTer, 
+			int __reducePopCount){
+	struct internals *_ptrInternals  = (struct internals *)__ptrParser->internals;
+	int _nextState;
 
-int _tmain(int argc, _TCHAR* argv[])
-{
-	return 0;
+			
+	__state = *(int *)__ptrStack->Read(__ptrStack);
+	_ptrInternals->ParseTable->NextGoto(_ptrInternals->ParseTable, __state, &_nextState,__reduceNTer);
+	if (_nextState!=-1){
+		__ptrStack->Push(__ptrStack, &_nextState);
+		return 1;
+	}
+	else{
+		return -1;
+	}
+}
+struct ParseTree * Parse(struct SLRParser *__ptrParser, int *__tokens){
+
+	struct Stack *_ptrStack = (struct Stack *)Create_Object(STACK);
+	struct ParseTree *_ptrOutput = (struct ParseTree*)Create_Object( PARSETREE);
+	_ptrOutput = _ptrOutput->init(_ptrOutput, sizeof(int));
+	struct ParseTreeNode *_ptrHead = _ptrOutput->Head;
+	struct internals *_ptrInternals = (struct internals *)__ptrParser->internals;
+	int _state;
+	int _nextState;
+	int _popCount;
+	EnumActions _nextAction;
+	int _tokenIndex =0;
+	int _reduceNTer;
+	_ptrStack = _ptrStack->init(_ptrStack, sizeof(int));
+	_state =0;
+	_ptrStack->Push(_ptrStack, &_state);
+
+	while (1){
+			
+		_state = *(int *)_ptrStack->Read(_ptrStack);
+		_ptrInternals->ParseTable->NextAction(_ptrInternals->ParseTable,__tokens[_tokenIndex], _state, &_nextState, &_nextAction, 
+			&_reduceNTer, &_popCount);
+		if (_nextAction == EnumActions::SHIFT){
+			
+			_ptrStack->Push(_ptrStack, &_nextState);
+			_ptrHead=_ptrOutput->Add_Next(_ptrOutput, _ptrHead, &__tokens[_tokenIndex]);
+			_tokenIndex++;
+		}
+		else if (_nextAction == EnumActions::REDUCE){
+			if (_popCount >0){
+				_ptrStack->Pop(_ptrStack);
+			}
+			for (int i =0;i <_popCount-1;i++){
+				_ptrStack->Pop(_ptrStack);
+				_ptrHead=_ptrOutput->GetPrevious(_ptrHead);
+
+			}
+			_ptrHead=_ptrOutput->Add_PSh(_ptrOutput, _ptrHead, &_reduceNTer);
+			if (Par_Red(_ptrOutput,_ptrHead, __ptrParser, _ptrStack, _state,  _reduceNTer, _popCount) ==-1){
+				return NULL;
+			}
+		}
+		else if (_nextAction == EnumActions::ACCEPT){
+			return _ptrOutput;
+		}
+		else{
+			return NULL;
+		}
+	}
+	return NULL;
+}
+struct  SLRParser * init(struct SLRParser *__ptrInput, int **__Grammar, int *__Rows, int __countRows, 
+	int __countNonterminals, int __countTerminals){
+	struct internals *_ptrInternals = (struct internals *)__ptrInput->internals;
+	_ptrInternals->ParseTable = (struct ParseTable *)Create_Object(PARSETABLE);
+	_ptrInternals->ParseTable = _ptrInternals->ParseTable->init(_ptrInternals->ParseTable, __Grammar, __Rows,
+		__countRows, __countNonterminals, __countTerminals);
+	return __ptrInput;
 }
 
+
+ static void * c_ctor(){
+	struct  SLRParser *_ptrOutput = (struct SLRParser *)malloc(sizeof(struct SLRParser));
+	struct internals *_ptrInternals  = (struct internals *)malloc(sizeof(struct internals));
+	struct ParseTable *_ptrParseTable= (struct ParseTable *)malloc(sizeof(struct ParseTable));
+
+	_ptrInternals->ParseTable = _ptrParseTable;
+	_ptrOutput->internals  = _ptrInternals;
+	_ptrOutput->init = init;
+	_ptrOutput->Parse = Parse;
+	return _ptrOutput;
+}
+
+struct  Class_Generic _SLRPARSER = {c_ctor};
+
+const void *SLRPARSER = &_SLRPARSER;

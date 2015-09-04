@@ -1,104 +1,112 @@
-#include "stdafx.h"
-#include "Stack.h"
-
-
-
-
-/* The grammer used in this example is as below:
-E->TE'
-E'->+TE'|Eps
-T->FT'
-T'->*FT'|Eps
-F->(E)|id
-
-the input string is:
-"id+id*id"
-
-the output will be the parse tree
-
-
-The Nonterminals are mapped as follow:
-[E,  0]
-[E', 1]
-[T,  2]
-[T', 3]
-[F,  4]
-
-
-The Terminals are mapped as follow:
-[+,    5]
-[*',   6]
-[id,   7]
-[(,    8]
-[),    9]
-[Eps, 10]
-[$,   11]
-
-For more information about how to use the project please see the documentation
-*/
+#include "Create_object.h"
+#include <stdio.h>
+#include <Windows.h>
+#include "SLRParser.h"
+#include "ParseTree.h"
+//
+//* The matGrammar used in this example is as below:
+//E->E+T|T
+//T->T*F|F
+//F->(E)|id
+//
+//
+//
+//the input string is:
+//"id+id*id"
+//
+//the output will be the parse tree
+// 
+//
+//The Nonterminals are mapped as follow:
+//[E,  0]
+//[E', 1]
+//[T,  2]
+//[T', 3]
+//[F,  4]
+//
+//
+//The Terminals are mapped as follow:
+//[+,    5]
+//[*',   6]
+//[id,   7]
+//[(,    8]
+//[),    9]
+//[Eps, 10]
+//[$,   11]
+//
+//For more information about how to use the project please see the documentation
+//*/
 
 int **InitializeMatrix(int __RowCount, int __ColCount);
+void PrintMat(int **__matInput, int __RowCount, int __ColCount);
+
+
 int main(){
 
-//The grammer matrix
-	int **Grammer = InitializeMatrix(8, 11);
-	//The index of the Nonterminal for each row of the grammer matrix
-	int *Rows = (int *)malloc(sizeof(int)*8);
+//The matGrammar matrix
+	int **matGrammar = InitializeMatrix(7, 10);
+	//The index of the Nonterminal for each row of the matGrammar matrix
+	int *Rows = (int *)malloc(sizeof(int)*7);
 
 	int *_input = ((int *)malloc(sizeof(int)*5));
 	struct ParseTree *_ptrResult;
-	//E->TE'
-	Grammer[0][1]=1;
-	Grammer[0][2]=0;
+	//E'->E
+	matGrammar[0][1]=0;
 	Rows[0] =0;
-	//E'->+TE'
-	Grammer[1][1]=2;
-	Grammer[1][2]=1;
-	Grammer[1][5]=0;
+	//E->E+T
+	matGrammar[1][1]=0;
+	matGrammar[1][4]=1;
+	matGrammar[1][2]=2;
 	Rows[1] =1;
-	//E'->Eps
-	Grammer[2][10]=0;
+	//E->T
+	matGrammar[2][2]=0;
 	Rows[2] = 1;
-	//T->FT'
-	Grammer[3][3]=1;
-	Grammer[3][4]=0;
+	//T->T*F
+	matGrammar[3][2]=0;
+	matGrammar[3][5]=1;
+	matGrammar[3][3]=2;
 	Rows[3] =2;
-	//T'->*FT'
-	Grammer[4][3]=2;
-	Grammer[4][4]=1;
-	Grammer[4][6]=0;
-	Rows[4] =3;
-	//T'->Eps
-	Grammer[5][10]=0;
-	Rows[5] = 3;
+	//T->F
+	matGrammar[4][3]=0;
+	Rows[4] =2;
 	//F->(E)
-	Grammer[6][0]=1;
-	Grammer[6][8]=0;
-	Grammer[6][9]=2;
-	Rows[6] =4;
+	matGrammar[5][7]=0;
+	matGrammar[5][1]=1;
+	matGrammar[5][8]=2;
+	Rows[5] = 3;
 	//F->id
-	Grammer[7][7]=0;
-	Rows[7] =4;
+	matGrammar[6][6]=0;
+	Rows[6] =3;
 
 	//initialize input tokens
 	//id
-	_input[0] = 7;
+	_input[0] = 6;
 	//+
-	_input[1] = 5;
+	_input[1] = 4;
 	//id
-	_input[2] = 7;
-	///*
-	_input[3] = 6;
+	_input[2] = 6;
+	//*
+	_input[3] = 5;
 	//id
-	_input[4] = 7;
+	_input[4] = 6;
+	//$
+	_input[5] = 10;
 
-	_ptrResult=Parse(Grammer, Rows, 8, 5, 5, _input, 5);
-	PrintTree(_ptrResult);
+	
+
+	struct ParseTable *_ptrParseTable = (struct ParseTable *)Create_Object(PARSETABLE);
+	_ptrParseTable = (struct ParseTable *)_ptrParseTable->init(_ptrParseTable, matGrammar, Rows,  7, 4, 5);
+	struct SLRParser *_ptrParser = (struct SLRParser *)Create_Object(SLRPARSER);
+	struct ParseTree *_ptrParseTree;
+	_ptrParser = _ptrParser->init(_ptrParser, matGrammar, Rows, 7, 4, 5);
+	_ptrParseTree=_ptrParser->Parse(_ptrParser, _input);
+	_ptrParseTree->PrintTree(_ptrParseTree);
+
 	return 0;
 }
 
 //Prints the input matrix
-void PrintMat(int **__matInput, int __RowCount, int __ColCount){
+static void PrintMat(int **__matInput, int __RowCount, int __ColCount){
 	char *_strPrint = (char *)malloc(sizeof(char) * 1000);
 	char *_num2str =  (char *)malloc(sizeof(char) * 10);
 	_num2str[0] = '\0';
@@ -113,7 +121,7 @@ void PrintMat(int **__matInput, int __RowCount, int __ColCount){
 }
 
 //Creates a dynamic 2d matrix and sets all the elements to -1
-int **InitializeMatrix(int __RowCount, int __ColCount){
+static int **InitializeMatrix(int __RowCount, int __ColCount){
 	int **_matOutput = (int **)malloc(sizeof(int *)*__RowCount);
 	for (int i = 0; i<__ColCount; i++){
 		_matOutput[i] = (int *)malloc(sizeof(int )*__ColCount);
@@ -125,3 +133,5 @@ int **InitializeMatrix(int __RowCount, int __ColCount){
 	}
 	return _matOutput;
 }
+
+

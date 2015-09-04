@@ -1,11 +1,17 @@
-#include "Stdafx.h"
+#ifndef STACK_H
+#define STACK_H
+
 #include <Windows.h>
 
+extern const void * STACK;
 
-struct stack{
-struct stack *previous;
-int value;
+struct Stack{
+	void *internals;
+	void (*Push)(struct Stack *__ptrStack, void * __newValue);
+	void *(*Pop)(struct Stack *__ptrStack);
+	//read top item without popint
+	void *(*Read)(struct Stack *__ptrStack);
+	struct Stack *(*init)(struct Stack *__ptrInput, size_t __size);
 };
+#endif STACK_H
 
-void Push(struct stack **__ptrHeader, int value);
-struct stack *Pop(struct stack **__ptrHeader);
