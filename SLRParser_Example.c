@@ -50,6 +50,9 @@ int main(){
 
 	int *_input = ((int *)malloc(sizeof(int)*5));
 	struct ParseTree *_ptrResult;
+	
+	struct SLRParser *_ptrParser = (struct SLRParser *)Create_Object(SLRPARSER);
+	struct ParseTree *_ptrParseTree;
 	//E'->E
 	matGrammar[0][1]=0;
 	Rows[0] =0;
@@ -95,8 +98,6 @@ int main(){
 	
 
 
-	struct SLRParser *_ptrParser = (struct SLRParser *)Create_Object(SLRPARSER);
-	struct ParseTree *_ptrParseTree;
 	_ptrParser = _ptrParser->init(_ptrParser, matGrammar, Rows, 7, 4, 5);
 	_ptrParseTree=_ptrParser->Parse(_ptrParser, _input);
 	_ptrParseTree->PrintTree(_ptrParseTree);
@@ -108,10 +109,12 @@ int main(){
 static void PrintMat(int **__matInput, int __RowCount, int __ColCount){
 	char *_strPrint = (char *)malloc(sizeof(char) * 1000);
 	char *_num2str =  (char *)malloc(sizeof(char) * 10);
+	int i;
+	int j;
 	_num2str[0] = '\0';
 	_strPrint[0] = '\0';
-	for (int i = 0; i < __RowCount;i++){
-		for (int j =0; j<__ColCount;j++){
+	for ( i = 0; i < __RowCount;i++){
+		for ( j =0; j<__ColCount;j++){
 			
 			printf("%4d", __matInput[i][j]);
 		}
@@ -121,12 +124,14 @@ static void PrintMat(int **__matInput, int __RowCount, int __ColCount){
 
 //Creates a dynamic 2d matrix and sets all the elements to -1
 static int **InitializeMatrix(int __RowCount, int __ColCount){
+	int i;
+	int j;
 	int **_matOutput = (int **)malloc(sizeof(int *)*__RowCount);
-	for (int i = 0; i<__ColCount; i++){
+	for ( i = 0; i<__ColCount; i++){
 		_matOutput[i] = (int *)malloc(sizeof(int )*__ColCount);
 	}
-	for (int i = 0; i< __RowCount; i++){
-		for (int j = 0; j < __ColCount; j ++){
+	for ( i = 0; i< __RowCount; i++){
+		for ( j = 0; j < __ColCount; j ++){
 			_matOutput[i][j] = -1;
 		}
 	}

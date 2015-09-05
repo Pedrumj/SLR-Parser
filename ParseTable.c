@@ -8,7 +8,16 @@
 #include <stdio.h>
 #include "Follow.h"
 
-struct internals{
+
+ void PrintMatrix(int **__ptrInput, int __countRows, int __countColumns);
+ void GenerateActionTable(struct ParseTable *__ptrInput);
+ int GetClosureState(struct Closure* __ptrOutgoing, struct LinkedListNode *__ptrClosures);
+ int IsTerminal(int __Token, int __NonTerminalCount, int __TerminalCount);
+ int **InitiateMatrix( int __rowCount, int __colCount);
+ int GetStateCount(struct LinkedListNode *__ptrClosures);
+
+
+static struct internals{
 	struct Grammar *Grammar;
 	struct  Automaton *Automaton;
 	int **Action;
@@ -20,18 +29,14 @@ struct internals{
 	int TerminalCount;
 };
 
- void PrintMatrix(int **__ptrInput, int __countRows, int __countColumns);
- void GenerateActionTable(struct ParseTable *__ptrInput);
- int GetClosureState(struct Closure* __ptrOutgoing, struct LinkedListNode *__ptrClosures);
- int IsTerminal(int __Token, int __NonTerminalCount, int __TerminalCount);
- int **InitiateMatrix( int __rowCount, int __colCount);
- int GetStateCount(struct LinkedListNode *__ptrClosures);
+
 
  void AddReduce(struct ParseTable *__ptrInput, int __intState, int __intProduction){
 	struct internals *_ptrInternals  = (struct internals *)__ptrInput->internals;
 	int _intNonterminal = _ptrInternals->Grammar->Rows[__intProduction];
 	struct LinkedListNode *_ptrFollowA = _ptrInternals->Grammar->Follow->arrFollow[_intNonterminal]->Head;
 	int _intFolValue;
+
 	while (_ptrFollowA->Next !=NULL){
 		_intFolValue= *(int *)_ptrFollowA->Value;
 		if (_ptrInternals->Grammar->IsEndMarker(_intFolValue, _ptrInternals->Grammar) ==1){
@@ -134,7 +139,7 @@ void GenerateGotoTable(struct ParseTable *__ptrInput){
 	}
 }
 
-struct ParseTable * init(struct ParseTable *__ptrInput, int **__Grammar, int *__Rows, int __countRows, 
+static struct ParseTable * init(struct ParseTable *__ptrInput, int **__Grammar, int *__Rows, int __countRows, 
 	int __countNonterminals, int __countTerminals){
 	struct Grammar * _ptrGrammar = (struct Grammar *)Create_Object(GRAMMAR);
 	struct Automaton *_ptrAutomaton = (struct Automaton *)Create_Object(AUTOMATON);
@@ -205,10 +210,12 @@ int IsTerminal(int __Token, int __NonTerminalCount, int __TerminalCount){
 	}
 }
 int **InitiateMatrix( int __rowCount, int __colCount){
+	int i;
+	int j;
 	int **_ptrOutput= (int **)malloc(sizeof(int *)*__rowCount);
-	for (int i= 0; i< __rowCount; i++){
+	for ( i= 0; i< __rowCount; i++){
 		_ptrOutput[i]= (int *)malloc(sizeof(int)*__colCount);
-		for (int j =0; j< __colCount;j++){
+		for ( j =0; j< __colCount;j++){
 			_ptrOutput[i][j] = -1;
 		}
 	}
@@ -217,30 +224,33 @@ int **InitiateMatrix( int __rowCount, int __colCount){
 }
 
  void PrintMatrix(int **__ptrInput, int __countRows, int __countColumns){
-	  printf("Printing Matrix\n");
-	 for (int i = 0; i<__countRows;i++){
-		 for (int j = 0; j < __countColumns;j++){
+	
+	  int i;
+	  int j;
+	    printf("Printing Matrix\n");
+	 for ( i = 0; i<__countRows;i++){
+		 for ( j = 0; j < __countColumns;j++){
 			printf("%4d", __ptrInput[i][j]);
 		 }
 		 printf("\n");
 	 }
  }
 
- void NextGoto(struct ParseTable *__ptrParseTable, int __state, int *__nextState, int __reduceNTer){
+static void NextGoto(struct ParseTable *__ptrParseTable, int __state, int *__nextState, int __reduceNTer){
 	 struct internals *_ptrInternals = (struct internals *)__ptrParseTable->internals;
 	*__nextState = _ptrInternals->Goto[__state][__reduceNTer-1];
  
  }
 
-  void NextAc_Ter(struct ParseTable *__ptrParseTable, int __nextToken, int __state, int *__nextState, EnumActions *__actionType, 
-	   int *__reduceNTer){
+  void NextAc_Ter(struct ParseTable *__ptrParseTable, int __nextToken, int __state, int *__nextState, enum EnumActions *__actionType, int *__reduceNTer){
 	
  }
 
- void NextAction(struct ParseTable *__ptrParseTable, int __nextToken, int __state, int *__nextState, EnumActions *__actionType, 
+ void NextAction(struct ParseTable *__ptrParseTable, int __nextToken, int __state, int *__nextState, enum EnumActions *__actionType, 
 	 int *__reduceNTer, int *__reducePoC){
 	struct internals *_ptrInternals = (struct internals *)__ptrParseTable->internals;
 	int _colIndex;
+
 	if (_ptrInternals->Grammar->IsEndMarker(__nextToken, _ptrInternals->Grammar)==1){
 		_colIndex = __nextToken-1-_ptrInternals->NonTerminalCount;
 	}
@@ -248,19 +258,19 @@ int **InitiateMatrix( int __rowCount, int __colCount){
 		_colIndex = __nextToken-_ptrInternals->NonTerminalCount;
 	}
 	if (_ptrInternals->Action[__state][_colIndex] != -1){
-		*__actionType = EnumActions::SHIFT;
+		*__actionType = SHIFT;
 		*__nextState = _ptrInternals->Action[__state][_colIndex];
 	}
 	else if(_ptrInternals->Reduce[__state][_colIndex] != -1){
-		*__actionType = EnumActions::REDUCE;
+		*__actionType = REDUCE;
 		*__reduceNTer = _ptrInternals->Grammar->Rows[_ptrInternals->Reduce[__state][_colIndex]];
 		*__reducePoC = _ptrInternals->Grammar->ProTokCount(_ptrInternals->Grammar, _ptrInternals->Reduce[__state][_colIndex]);
 	}
 	else if(_ptrInternals->Accept[__state][_colIndex] != -1){
-		*__actionType = EnumActions::ACCEPT;
+		*__actionType = ACCEPT;
 	}
 	else{
-		*__actionType = EnumActions::ERROR_A;
+		*__actionType = ERROR_A;
 	}
 	
  }

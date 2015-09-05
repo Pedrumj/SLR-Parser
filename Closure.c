@@ -16,7 +16,7 @@ void OutgoingLinks(struct Closure *_ptrInput);
 int FindLink(struct LinkedListNode *__ptrLinks, struct Link *__ptrNewLink);
 int AddItemToClosure(struct Closure *_ptrInput, int __intProduction, int __intDot, int __IsKernel);
 
-struct Closure * init(struct Closure *_ptrInput, const struct Grammar * const __ptrGrammar, int __state){
+static struct Closure * init(struct Closure *_ptrInput, const struct Grammar * const __ptrGrammar, int __state){
 	struct internals *_ptrInternals = (struct internals *)_ptrInput->internals;
 	_ptrInternals->Grammar = __ptrGrammar;
 	_ptrInput->Items = (struct LinkedList*)Create_Object(LINKEDLIST);
@@ -150,7 +150,7 @@ int AddItemToClosure(struct Closure *_ptrInput, int __intProduction, int __intDo
 	return 1;
 }
 
-void Print(struct Closure *_ptrInput){
+static void Print(struct Closure *_ptrInput){
 	//struct internals *_ptrInternals = (struct internals *)_ptrInput->internals;
 	struct LinkedListNode *_ptrHeader = _ptrInput->Items->Head;
 	struct ItemInClosure *_ptrItem;
@@ -205,10 +205,11 @@ struct LinkedList * ItemsDotEnd(struct Closure *__ptrInput){
 	struct LinkedList *_ptrOutput = (struct LinkedList *)Create_Object(LINKEDLIST);
 	struct internals *_ptrInternals = (struct internals *)__ptrInput->internals;
 	struct ItemInClosure *_ptrValue;
+
 	int _itemAfterDot;
 
 
-	_ptrOutput = _ptrOutput->init(_ptrOutput, sizeof(ItemInClosure));
+	_ptrOutput = _ptrOutput->init(_ptrOutput, sizeof(struct ItemInClosure));
 	while (__ptrInput->Items->Head->Next!=NULL){
 		_ptrValue=  (struct ItemInClosure *)__ptrInput->Items->Head->Value;
 		_itemAfterDot = _ptrInternals->Grammar->GetItemAfterDot(_ptrInternals->Grammar, _ptrValue->intProduction, 

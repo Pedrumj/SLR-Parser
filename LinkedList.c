@@ -20,7 +20,7 @@ void Add( void * __ptrValue, struct LinkedList *__ptrList){
 
 }
 
-struct LinkedList * init(struct LinkedList *_ptrInput, int __Size){
+static struct LinkedList * init(struct LinkedList *_ptrInput, int __Size){
 
 	_ptrInput->Size = __Size;
 

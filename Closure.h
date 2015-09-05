@@ -3,6 +3,14 @@
 
 extern const void *CLOSURE;
 
+
+ struct ItemInClosure{
+	 // production number (rows of grammar matrix)
+	int intProduction;
+	//dot location in the production. starts from zero
+	int intDot;
+	int IsKernel;
+};
 struct Closure{
 	
 	struct LinkedList *Items;
@@ -22,13 +30,6 @@ struct Closure{
 };
 
 
- struct ItemInClosure{
-	 // production number (rows of grammar matrix)
-	int intProduction;
-	//dot location in the production. starts from zero
-	int intDot;
-	int IsKernel;
-};
 
  struct Link{
 	 //outgoing terminal or nontermianl

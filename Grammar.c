@@ -29,7 +29,7 @@ int IsNonTerminal(const struct Grammar *__ptrGramamr, int __intItem){
 	}
 }
 
-int IsTerminal(const struct Grammar *__ptrGramamr, int __intItem){
+static int IsTerminal(const struct Grammar *__ptrGramamr, int __intItem){
 	struct internals *_ptrInternals = (struct internals *)__ptrGramamr->internals;
 	if (__intItem >=_ptrInternals->countNonterminals){
 		return 1;
@@ -42,7 +42,8 @@ int IsTerminal(const struct Grammar *__ptrGramamr, int __intItem){
 
 //Returns the __ItemIndex'th item of the produciton specified by __RowIndex. Returns -1 if not found
 int GetItemInProduction(int **__Grammer, int __RowIndex, int __ColumnCount, int __ItemIndex){
-	for (int i =0; i <__ColumnCount; i++){
+	int i;
+	for ( i =0; i <__ColumnCount; i++){
 		if (__Grammer[__RowIndex][i] == __ItemIndex){
 			return i;
 		}
@@ -50,9 +51,10 @@ int GetItemInProduction(int **__Grammer, int __RowIndex, int __ColumnCount, int 
 	return -1;
 }
 
-int * GetProduction(int **__Grammer, int __rowIndex, int __countColumns, int *__countOutput){
+int * GetProduction2(int **__Grammer, int __rowIndex, int __countColumns, int *__countOutput){
+	int i;
 	int *_output = (int *)malloc(sizeof(int)*__countColumns);
-	for (int i = 0; i < __countColumns; i++){
+	for ( i = 0; i < __countColumns; i++){
 		_output[i] = GetItemInProduction(__Grammer, __rowIndex, __countColumns, i);
 		if (_output[i] ==-1){
 			*__countOutput = i;
@@ -70,11 +72,14 @@ struct LinkedList **GrammarToList(int **__Grammer, int __countRows, int __countC
 		int *Value;
 		struct LinkedList **__lstOutput = (struct LinkedList **)malloc(sizeof(struct LinkedList *)*__countRows);
 		struct LinkedList *_ptrNew;
-		for (int i = 0; i < __countRows; i++){
-			_arrProduction = GetProduction(__Grammer, i, __countColumns, &_countOutput);
+		int i;
+		int j;
+
+		for ( i = 0; i < __countRows; i++){
+			_arrProduction = GetProduction2(__Grammer, i, __countColumns, &_countOutput);
 			_ptrNew = (struct LinkedList *)Create_Object(LINKEDLIST);
 			_ptrNew = _ptrNew->init(_ptrNew, sizeof(int));
-			for (int j = 0; j < _countOutput;j++){
+			for ( j = 0; j < _countOutput;j++){
 				Value = (int *)malloc(sizeof(int));
 				*Value = _arrProduction[i];
 				_ptrNew->Add((void *)&_arrProduction[j], _ptrNew);
@@ -103,7 +108,7 @@ int IsEndMarker(int __intItem, struct Grammar * __ptrGrammar){
 
 
 
-Grammar *init(struct Grammar *__ptrGrammar, int **__Grammar, int *__Rows, int __countRows, int __countNonterminals, int __countTerminals){
+static struct Grammar *init(struct Grammar *__ptrGrammar, int **__Grammar, int *__Rows, int __countRows, int __countNonterminals, int __countTerminals){
 
 	struct internals *_ptrInternals ;
 	
@@ -132,16 +137,17 @@ Grammar *init(struct Grammar *__ptrGrammar, int **__Grammar, int *__Rows, int __
 
 
 
-void Print(struct Grammar *__ptrGrammar){
+static void Print(struct Grammar *__ptrGrammar){
 	struct internals * _ptrInternals = (struct internals *) __ptrGrammar->internals;
 	int _countRows = _ptrInternals->countRows;
-
+	int i;
 	struct LinkedList **lstGrammar = _ptrInternals->arrGrammerList;
 	struct LinkedListNode *_ptrTemp;
+	int *Value;
 
-	for (int i = 0; i < _countRows;i++){
+	for ( i = 0; i < _countRows;i++){
 		_ptrTemp = lstGrammar[i]->Head;
-		int *Value;
+		
 		Value =(int *)_ptrTemp->Value;
 		printf("%d ",*((int *)(_ptrTemp->Value)));
 		while (_ptrTemp->Next->Next !=NULL){
@@ -163,10 +169,12 @@ struct LinkedList *GetProduction(const struct Grammar*__ptrGrammar, int __intPro
 struct LinkedList *GetRows(const struct Grammar*__ptrGrammar, int __intNonTerminal){
 	struct internals * _ptrInternals = (struct internals *)__ptrGrammar->internals;
 	struct LinkedList *_ptrOutput = (struct LinkedList *)Create_Object(LINKEDLIST);
+	int i;
+	int _countRows = _ptrInternals->countRows;
 	_ptrOutput = _ptrOutput->init(_ptrOutput, sizeof(int));
 
-	int _countRows = _ptrInternals->countRows;
-	for (int i =0; i<_countRows;i++){
+	
+	for ( i =0; i<_countRows;i++){
 		if (__ptrGrammar->Rows[i] ==__intNonTerminal){
 			_ptrOutput->Add(&i, _ptrOutput);
 		}	
@@ -177,7 +185,8 @@ struct LinkedList *GetRows(const struct Grammar*__ptrGrammar, int __intNonTermin
 int GetItemAfterDot(const struct Grammar *__ptrGramamr, int __intProduction, int __intDot){
 	struct LinkedList *_ptrProduction =__ptrGramamr->GetProduction(__ptrGramamr, __intProduction);
 	struct LinkedListNode *_ptrNode = _ptrProduction->Head;
-	for (int i =0; i < __intDot ;i++){
+	int i;
+	for ( i =0; i < __intDot ;i++){
 		_ptrNode  = _ptrNode->Next;
 	}
 	if (_ptrNode->Next==NULL){

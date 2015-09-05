@@ -30,10 +30,10 @@ int CompareFollow(void *__ptr1, void *__ptr2){
 void Print_Follow(struct Follow *__ptrInput){
 	struct internals *_ptrInternals = (struct internals *)__ptrInput->internals;
 	struct LinkedListNode *_ptrPrFollow_Node;
-
+	int i;
 	printf("Printing Follow");
 	printf("\n");
-	for (int i = 0; i< _ptrInternals->countNonterminals;i++){
+	for ( i = 0; i< _ptrInternals->countNonterminals;i++){
 		_ptrPrFollow_Node = __ptrInput->arrFollow[i]->Head;
 		while (_ptrPrFollow_Node->Next !=NULL){
 			 printf("%-4d", *(int *)_ptrPrFollow_Node->Value);
@@ -138,11 +138,11 @@ int AddEm_S(struct Follow *__ptrInput, struct Grammar *__ptrGrammar){
 //Adds the follow valuues to the sets for each token in each production
 int AddFollow(struct Follow *__ptrInput, struct Grammar *__ptrGrammar){
 	struct internals *_ptrInternals = (struct internals *)__ptrInput->internals;
-
+	int i;
 	int _flagChanged =0;
-
-	for (int i =0; i < _ptrInternals->countNonterminals;i++){
-		for (int j =0; j <_ptrInternals->countRows;j++){
+	int j;
+	for ( i =0; i < _ptrInternals->countNonterminals;i++){
+		for ( j =0; j <_ptrInternals->countRows;j++){
 			_flagChanged+=AdFol_Pr(j, i,__ptrInput,  __ptrGrammar);
 		}
 	}
@@ -154,9 +154,9 @@ int AddFollow(struct Follow *__ptrInput, struct Grammar *__ptrGrammar){
 //Allocates memory for the FOLLOW array
 void InitFirstArray(struct Follow *__ptrInput, struct Grammar *__ptrGrammar){
 	struct internals *_ptrInternals = (struct internals *)__ptrInput->internals;
-
+	int i;
 	__ptrInput->arrFollow = (struct LinkedList **)malloc(sizeof(struct LinkedList *)*_ptrInternals->countNonterminals);
-	for (int i =0;i < _ptrInternals->countNonterminals;i++){
+	for ( i =0;i < _ptrInternals->countNonterminals;i++){
 		__ptrInput->arrFollow[i] = (struct LinkedList *)Create_Object(LINKEDLIST);
 		__ptrInput->arrFollow[i] = __ptrInput->arrFollow[i]->init(__ptrInput->arrFollow[i], sizeof(int)); 
 	} 
@@ -175,7 +175,7 @@ void GenerateFollow(struct Follow *__ptrInput, struct Grammar *__ptrGrammar){
 
 }
 
-struct Follow * init(struct Follow *__ptrFollow, struct Grammar *__ptrGrammar, int __countRows, int __countNonterminals, 
+static struct Follow * init(struct Follow *__ptrFollow, struct Grammar *__ptrGrammar, int __countRows, int __countNonterminals, 
 	int __countTerminals){
 	struct internals *_ptrInternals ;
 	

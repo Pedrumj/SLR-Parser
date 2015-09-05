@@ -18,10 +18,10 @@ struct internals{
 void Print_First(struct First *__ptrInput){
 	struct internals *_ptrInternals = (struct internals *)__ptrInput->internals;
 	struct LinkedListNode *_ptrPrFirst_Node;
-
+	int i;
 	printf("Printing First");
 	printf("\n");
-	for (int i = 0; i< _ptrInternals->countRows;i++){
+	for ( i = 0; i< _ptrInternals->countRows;i++){
 		_ptrPrFirst_Node = __ptrInput->arrFirst[i]->Head;
 		while (_ptrPrFirst_Node->Next !=NULL){
 			 printf("%-4d", *(int *)_ptrPrFirst_Node->Value);
@@ -103,8 +103,9 @@ int AddPrFirst_ItNTer_Single(int __ptrProduction, struct LinkedList * __ptrPrFir
 //nonterminal to the production.
 int AddPrFirst_ItNTer(int __ptrNonterminal, struct LinkedList * __ptrPrFirst, struct First *__ptrInput, int *__flagEpsilon, struct Grammar *__ptrGrammar){
 	int _flagChanged =0;
+	int i;
 	struct internals *_ptrInternals = (struct internals *)__ptrInput->internals;
-	for (int i =0; i<_ptrInternals->countRows;i++){
+	for (i =0; i<_ptrInternals->countRows;i++){
 		if (__ptrGrammar->Rows[i] ==__ptrNonterminal){
 			_flagChanged+=AddPrFirst_ItNTer_Single(i, __ptrPrFirst, __ptrInput, __flagEpsilon, __ptrGrammar);
 		}
@@ -148,11 +149,11 @@ int AdPrFirst(int __intProduction,  struct First *__ptrInput, struct Grammar *__
 
 
 //Adds the FIRST tokens to the FIRST array for each production.
-int AddFirst(struct First *__ptrInput, struct Grammar *__ptrGrammar){
+static int AddFirst(struct First *__ptrInput, struct Grammar *__ptrGrammar){
 	struct internals *_ptrInternals = (struct internals *)__ptrInput->internals;
-
+	int i;
 	int _flagChanged =0;
-	for (int i =0; i < _ptrInternals->countRows;i++){
+	for ( i =0; i < _ptrInternals->countRows;i++){
 		_flagChanged+=AdPrFirst(i, __ptrInput, __ptrGrammar);
 	}
 	return _flagChanged;
@@ -160,11 +161,11 @@ int AddFirst(struct First *__ptrInput, struct Grammar *__ptrGrammar){
 
 
 //allocates memory for the FIRST array
-void InitFirstArray(struct First *__ptrInput, struct Grammar *__ptrGrammar){
+static void InitFirstArray(struct First *__ptrInput, struct Grammar *__ptrGrammar){
 	struct internals *_ptrInternals = (struct internals *)__ptrInput->internals;
-
+	int i;
 	__ptrInput->arrFirst = (struct LinkedList **)malloc(sizeof(struct LinkedList *)*_ptrInternals->countRows);
-	for (int i =0;i < _ptrInternals->countRows;i++){
+	for ( i =0;i < _ptrInternals->countRows;i++){
 		__ptrInput->arrFirst[i] = (struct LinkedList *)Create_Object(LINKEDLIST);
 		__ptrInput->arrFirst[i] = __ptrInput->arrFirst[i]->init(__ptrInput->arrFirst[i], sizeof(int)); 
 	} 
@@ -185,7 +186,7 @@ void GenerateFirst(struct First *__ptrInput, struct Grammar *__ptrGrammar){
 
 
 
-struct First * init(struct First *__ptrFirst, struct Grammar *__ptrGrammar, int __countRows, int __countNonterminals, 
+static struct First * init(struct First *__ptrFirst, struct Grammar *__ptrGrammar, int __countRows, int __countNonterminals, 
 	int __countTerminals){
 	
 	struct internals *_ptrInternals ;

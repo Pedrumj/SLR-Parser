@@ -6,6 +6,7 @@
 #include "SLRParser.h"
 #include "Stack.h"
 #include "ParseTree.h"
+
 struct internals{
 	struct ParseTable *ParseTable;
 };
@@ -16,7 +17,6 @@ int Par_Red(struct ParseTree *__ParseTree, struct ParseTreeNode *__ptrNode,  str
 	struct internals *_ptrInternals  = (struct internals *)__ptrParser->internals;
 	int _nextState;
 
-			
 	__state = *(int *)__ptrStack->Read(__ptrStack);
 	_ptrInternals->ParseTable->NextGoto(_ptrInternals->ParseTable, __state, &_nextState,__reduceNTer);
 	if (_nextState!=-1){
@@ -28,38 +28,43 @@ int Par_Red(struct ParseTree *__ParseTree, struct ParseTreeNode *__ptrNode,  str
 	}
 }
 struct ParseTree * Parse(struct SLRParser *__ptrParser, int *__tokens){
-
 	struct Stack *_ptrStack = (struct Stack *)Create_Object(STACK);
 	struct ParseTree *_ptrOutput = (struct ParseTree*)Create_Object( PARSETREE);
-	_ptrOutput = _ptrOutput->init(_ptrOutput, sizeof(int));
-	struct ParseTreeNode *_ptrHead = _ptrOutput->Head;
+	struct ParseTreeNode *_ptrHead;
+	
+	
 	struct internals *_ptrInternals = (struct internals *)__ptrParser->internals;
 	int _state;
 	int _nextState;
 	int _popCount;
-	EnumActions _nextAction;
 	int _tokenIndex =0;
 	int _reduceNTer;
+	int i;
+	enum EnumActions _nextAction;
+
+	_ptrOutput = _ptrOutput->init(_ptrOutput, sizeof(int));
 	_ptrStack = _ptrStack->init(_ptrStack, sizeof(int));
 	_state =0;
 	_ptrStack->Push(_ptrStack, &_state);
+
+	_ptrHead= _ptrOutput->Head;
 
 	while (1){
 			
 		_state = *(int *)_ptrStack->Read(_ptrStack);
 		_ptrInternals->ParseTable->NextAction(_ptrInternals->ParseTable,__tokens[_tokenIndex], _state, &_nextState, &_nextAction, 
 			&_reduceNTer, &_popCount);
-		if (_nextAction == EnumActions::SHIFT){
+		if (_nextAction == SHIFT){
 			
 			_ptrStack->Push(_ptrStack, &_nextState);
 			_ptrHead=_ptrOutput->Add_Next(_ptrOutput, _ptrHead, &__tokens[_tokenIndex]);
 			_tokenIndex++;
 		}
-		else if (_nextAction == EnumActions::REDUCE){
+		else if (_nextAction == REDUCE){
 			if (_popCount >0){
 				_ptrStack->Pop(_ptrStack);
 			}
-			for (int i =0;i <_popCount-1;i++){
+			for ( i =0;i <_popCount-1;i++){
 				_ptrStack->Pop(_ptrStack);
 				_ptrHead=_ptrOutput->GetPrevious(_ptrHead);
 
@@ -69,7 +74,7 @@ struct ParseTree * Parse(struct SLRParser *__ptrParser, int *__tokens){
 				return NULL;
 			}
 		}
-		else if (_nextAction == EnumActions::ACCEPT){
+		else if (_nextAction == ACCEPT){
 			return _ptrOutput;
 		}
 		else{
@@ -78,7 +83,7 @@ struct ParseTree * Parse(struct SLRParser *__ptrParser, int *__tokens){
 	}
 	return NULL;
 }
-struct  SLRParser * init(struct SLRParser *__ptrInput, int **__Grammar, int *__Rows, int __countRows, 
+static struct  SLRParser * init(struct SLRParser *__ptrInput, int **__Grammar, int *__Rows, int __countRows, 
 	int __countNonterminals, int __countTerminals){
 	struct internals *_ptrInternals = (struct internals *)__ptrInput->internals;
 	_ptrInternals->ParseTable = (struct ParseTable *)Create_Object(PARSETABLE);

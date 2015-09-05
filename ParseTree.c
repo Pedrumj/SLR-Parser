@@ -144,9 +144,9 @@ struct ParseTreeNode * Add_Next(struct ParseTree *__ParseTree,struct ParseTreeNo
 void PrintTreeAux(struct ParseTreeNode *__ptrHeader, int __Recurse){
 	struct ParseTreeNode *_ptrTemp;
 	char *_strSlash = (char *)malloc(sizeof(char)*100);
-
+	int i;
 	_ptrTemp = __ptrHeader;
-	for (int i =0; i < __Recurse; i ++){
+	for (i =0; i < __Recurse; i ++){
 		_strSlash[i] ='\\';
 	}
 	_strSlash[__Recurse] = '\0';
@@ -166,16 +166,18 @@ void PrintTreeAux(struct ParseTreeNode *__ptrHeader, int __Recurse){
 
 
 //prints the tree
-void PrintTree(struct ParseTree *__ptrHeader){
+static void PrintTree(struct ParseTree *__ptrHeader){
 	printf("Printing tree\n");
 	PrintTreeAux(__ptrHeader->Head, 0);
 }
 
-struct ParseTree *init(struct ParseTree *__ParseTree, size_t __size){
+static struct ParseTree *init(struct ParseTree *__ParseTree, size_t __size){
+	int _Value;
 	struct internals *_ptrInternals  = (struct internals *)__ParseTree->internals;
 	struct ParseTreeNode *_ptrNode= (struct ParseTreeNode *)malloc(sizeof(struct ParseTreeNode));
 	_ptrNode->Value = (void *)malloc(sizeof(int));
-	int _Value =0;
+	
+	_Value=0;
 	
 	_ptrNode->Parent = NULL;
 	_ptrNode->FirstChild = NULL;

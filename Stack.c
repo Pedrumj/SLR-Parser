@@ -7,6 +7,7 @@ struct Node{
 	struct Node *Previous;
 	void *Value;
 };
+
 struct internals{
 	struct Node *Head;
 	size_t size;
@@ -15,6 +16,7 @@ struct internals{
 void Push(struct Stack *__ptrStack, void *__newValue){
 	struct Node *_ptrNew = (struct Node *)malloc(sizeof(struct Node));
 	struct internals *_ptrInternals = (struct internals *)__ptrStack->internals;
+
 	_ptrNew->Value= (void *)malloc(_ptrInternals->size);
 	memcpy(_ptrNew->Value, __newValue, _ptrInternals->size);
 	_ptrNew->Previous = _ptrInternals->Head;
@@ -59,13 +61,14 @@ void *Read(struct Stack *__ptrStack){
 
 }
 
-struct Stack *init(struct Stack *__ptrInput, size_t __size){
+static struct Stack *init(struct Stack *__ptrInput, size_t __size){
 	struct  Node *_ptrTemp = (struct Node *)malloc(sizeof (struct Node));
 	struct internals *_ptrInternals = (struct internals *)__ptrInput->internals;
+		int Temp = _ptrInternals->size;
 	_ptrTemp->Previous = NULL;
 	_ptrInternals->Head = _ptrTemp;
 	_ptrInternals->size = __size;
-	int Temp = _ptrInternals->size;
+
 	return __ptrInput;
 }
 
@@ -85,5 +88,5 @@ struct Stack *init(struct Stack *__ptrInput, size_t __size){
 }
 
 struct  Class_Generic _STACK = {c_ctor};
-
+//
 const void *STACK = &_STACK;
